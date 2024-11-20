@@ -1,0 +1,257 @@
+openapi: "3.0.3"
+info:
+  title: "Hokepon API"
+  description: |-
+    HokeponのREST APIの共通仕様です。
+  version: "0.0.1"
+  # termsOfService: http://swagger.io/terms/
+  # contact:
+  #   email: hogehoge@mail.com
+servers:
+  - url: https://internal.hokepon.com/api
+tags:
+  - name: stores
+    description: 店舗
+    # externalDocs:
+    #   description: Find out more
+    #   url: http://swagger.io
+  - name: reservations
+    description: 予約
+paths:
+  /stores:
+    get:
+      tags:
+        - stores
+      summary: 店舗一覧を取得する
+      description: 店舗一覧を取得する
+      # operationId: hoge
+      parameters:
+        - name: prefecture
+          in: query
+          description: 都道府県
+          required: false
+          schema:
+            type: string
+        - name: city
+          in: query
+          description: 市区町村
+          required: false
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          description: キーワード
+          required: false
+          schema:
+            type: string
+        - name: tags
+          in: query
+          description: タグ
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: successful operation
+  /stores/{storeId}:
+    get:
+      tags:
+        - stores
+      summary: １件の店舗取得する
+      description: 店舗IDを指定して、店舗取得する
+      parameters:
+        - name: storeId
+          in: path
+          description: 店舗ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '400':
+          description: Invalid storeId
+  /reservations/{storeId}:
+    get:
+      tags:
+        - reservations
+      summary: 予約情報を取得する
+      description: 店舗IDを指定して、予約情報取得する
+      parameters:
+        - name: storeId
+          in: path
+          description: 店舗ID
+          required: true
+          schema:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: successful operation
+          # content:
+          #   application/json:
+          #     $ref: '#/components/schemas/Hoge'
+        '400':
+          description: Invalid parameters supplied
+        '404':
+          description: Not found
+  /reservations/{storeId}/availabilities:
+    get:
+      tags:
+        - reservations
+      summary: 予約可能情報
+      description: "店舗IDを指定して、予約可能情報を取得する \
+        AVAILABLE - 予約可能, UNAVAILABLE - 予約不可 ...(追加予定)"
+      parameters:
+          - name: storeId
+            in: path
+            description: 店舗ID
+            required: true
+            schema:
+                type: integer
+                format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                example:
+                  "2024/11/01": "〇"
+                  "2024/11/02": "X"
+                  "2024/11/03": "△"
+        '400':
+          description: Invalid parameter supplied
+        '404':
+          description: Not found
+      security:
+        - api_key: []
+  /reservations:
+    post:
+      tags:
+        - reservations
+      summary: 予約登録
+      description: 予約登録
+      #operationId:
+      requestBody:
+        description: 予約情報
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+              required:
+                - name
+                - email
+                - storeId
+                - reservationTime
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: Validation exception
+    put:
+      tags:
+        - reservations
+      summary: 予約更新
+      description: 予約更新
+      #operationId:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "予約情報"
+        required: true
+        schema:
+            $ref: "#/components/schemas/Reservation"
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: Validation exception
+    delete:
+      tags:
+        - reservations
+      summary: 予約キャンセル
+      description: 予約キャンセル
+      #operationId:
+      parameters:
+        - name: reservationId
+          in: path
+          description: キャンセルする予約のID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: Validation exception
+      
+
+components:
+  schemas:
+    Store:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            example: 26016
+          storeName:
+            type: string
+            example: グランツリー武蔵小杉店
+          prefecture:
+            type: string
+            example: kanagawa
+          city:
+            type: string
+            example: kawasaki-shi-nakahara-ku
+          # more information here
+          # ...
+          tags:
+            type: array
+            items:
+            $ref: '#/components/schemas/Tag'
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    Reservation:
+          type: object
+          properties:
+            name:
+              type: string
+              example: 保険　太郎
+            email:
+              type: string
+              example: taro@email.com
+            storeId:
+              type: integer
+              format: int64
+              example: 26016
+            reservationTime:
+              type: string
+              format: date-time
+              example: "2024-11-20T18:00:00"
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
