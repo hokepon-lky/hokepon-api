@@ -134,26 +134,28 @@ paths:
       description: 相談予約にCAをアサインする
       #operationId:
       requestBody:
-        description: 予約情報
+        description: 予約情報一部
+        required: true
         content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignReservationInfo'
           application/json:
             schema:
-              $ref: '#/components/schemas/Reservation'
-              required:
-                - name
-                - email
-                - shopId
+              $ref: '#/components/schemas/AssignReservationInfo'
       responses:
         '200':
           description: successful operation
           content:
-            application/json:
+            text/plain:
               schema:
-                $ref: '#/components/schemas/Reservation'
+                type: integer
+                format: int64
+                example: 27
         '400':
-          description: Invalid input
-        '404':
-          description: Validation exception
+          description: Invalid parameters supplied
+        '422':
+          description: Failed to assign CA
     get:
       tags:
         - caAssigns
@@ -477,7 +479,24 @@ components:
           type: string
         status:
           type: string
-          enum: [AVAILABLE, LIMITED, UNAVAILABLEPENDING, CONTACT_REQUIRED, BLOCKED]	
+          enum: [AVAILABLE, LIMITED, UNAVAILABLEPENDING, CONTACT_REQUIRED, BLOCKED]
+    AssignReservationInfo:
+      type: object
+      properties:
+        customerName:
+          type: string
+          example: 保険　太郎
+        shopId:
+          type: integer
+          format: int64
+          example: 26016
+        reservationTime:
+          type: string
+          format: date-time
+          example: 2024-12-01T09:00:00Z
+        promotionID:
+          type: string
+          example: ss002 
   securitySchemes:
     api_key:
       type: apiKey
