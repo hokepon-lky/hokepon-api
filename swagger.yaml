@@ -10,18 +10,22 @@ info:
 servers:
   - url: https://internal.hokepon.com/api
 tags:
-  - name: stores
+  - name: shops
     description: 店舗
     # externalDocs:
     #   description: Find out more
     #   url: http://swagger.io
   - name: reservations
     description: 予約
+  - name: cas
+    description: CA
+  - name: caAssigns
+    description: CAアサイン情報
 paths:
-  /stores:
+  /shops:
     get:
       tags:
-        - stores
+        - shops
       summary: 店舗一覧を取得する
       description: 店舗一覧を取得する
       # operationId: hoge
@@ -55,14 +59,14 @@ paths:
       responses:
         '200':
           description: successful operation
-  /stores/{storeId}:
+  /shops/{shopId}:
     get:
       tags:
-        - stores
+        - shops
       summary: １件の店舗取得する
       description: 店舗IDを指定して、店舗取得する
       parameters:
-        - name: storeId
+        - name: shopId
           in: path
           description: 店舗ID
           required: true
@@ -70,17 +74,195 @@ paths:
             type: string
       responses:
         '400':
-          description: Invalid storeId
-  /reservations/{storeId}:
+          description: Invalid shopId
+  /cas:
+    get:
+      tags:
+        - cas
+      summary: エリアのCAの一覧を取得する
+      description: エリアIDを指定してCAの一覧を取得する
+      parameters:
+        - name: areaId
+          in: query
+          description: エリアID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ca' 
+        '400':
+          description: Invalid parameters areaId
+        '404':
+          description: Not found
+  /cas/{caId}:
+    get:
+      tags:
+        - cas
+      summary: 1件のCAを取得する
+      description: CAの社員番号を指定してい1件のCAを取得する
+      parameters:
+        - name: caId
+          in: path
+          description: CAの社員番号
+          required: true
+          schema:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ca'
+        '400':
+          description: Invalid parameters caId
+        '404':
+          description: Not found
+  /caAssigns:
+    post:
+      tags:
+        - caAssigns
+      summary: CA自動アサイン
+      description: 相談予約にCAをアサインする
+      #operationId:
+      requestBody:
+        description: 予約情報
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+              required:
+                - name
+                - email
+                - shopId
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '400':
+          description: Invalid input
+        '404':
+          description: Validation exception
+    get:
+      tags:
+        - caAssigns
+      summary: CAアサイン情報を取得
+      description: CAアサイン情報を取得する
+      #operationId:
+      parameters:
+        - name: reservationId
+          in: query
+          description: 予約ID
+          required: false
+          schema:
+              type: integer
+              format: int64
+        - name: shopId
+          in: query
+          description: 店舗ID
+          required: false
+          schema:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/caAssign'
+        '400':
+          description: Invalid parameters
+        '404':
+          description: Not found
+  /caAssigns/{caAssignId}:
+    get:
+      tags:
+        - caAssigns
+      summary: CAアサイン情報取得
+      description: CAアサイン情報を取得する
+      #operationId:
+      parameters:
+        - name: caAssignId
+          in: path
+          description: CAアサイン情報ID
+          required: true
+          schema:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/caAssign'
+        '400':
+          description: Invalid parameters
+        '404':
+          description: Not found
+    put:
+      tags:
+        - caAssigns
+      summary: CAアサイン情報更新
+      description: CAアサイン情報を更新
+      #operationId:
+      parameters:
+        - name: caAssignId
+          in: path
+          description: CAアサイン情報ID
+          required: true
+          schema:
+              type: integer
+              format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/caAssign'
+      responses:
+        default:
+          description: successful operation
+    delete:
+      tags:
+        - caAssigns
+      summary: CAアサイン情報削除
+      description: CAアサイン情報を削除
+      #operationId:
+      parameters:
+        - name: caAssignId
+          in: path
+          description: CAアサイン情報ID
+          required: true
+          schema:
+              type: integer
+              format: int64
+      responses:
+        '400':
+          description: Invalid caAssignId supplied
+        '404':
+          description: caAssign not found
+  /reservations/{reservationId}:
     get:
       tags:
         - reservations
       summary: 予約情報を取得する
-      description: 店舗IDを指定して、予約情報取得する
+      description: 予約IDを指定して、予約情報取得する
       parameters:
-        - name: storeId
+        - name: reservationId
           in: path
-          description: 店舗ID
+          description: 予約ID
           required: true
           schema:
               type: integer
@@ -95,41 +277,84 @@ paths:
           description: Invalid parameters supplied
         '404':
           description: Not found
-  /reservations/{storeId}/availabilities:
+    put:
+      tags:
+        - reservations
+      summary: 予約情報更新
+      description: 予約IDを指定して、予約情報を更新する
+      parameters:
+        - name: reservationId
+          in: path
+          description: 予約ID
+          required: true
+          schema:
+              type: integer
+              format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        default:
+          description: successful operation
+  /reservations/{shopId}/availabilities:
     get:
       tags:
         - reservations
       summary: 予約可能情報
-      description: "店舗IDを指定して、予約可能情報を取得する \
-        AVAILABLE - 予約可能, UNAVAILABLE - 予約不可 ...(追加予定)"
+      description: "店舗IDを指定して、予約可能情報を取得する"
       parameters:
-          - name: storeId
-            in: path
-            description: 店舗ID
-            required: true
-            schema:
-                type: integer
-                format: int64
+        - name: shopId
+          in: path
+          description: 店舗ID
+          required: true
+          schema:
+              type: integer
+              format: int64
       responses:
         '200':
           description: successful operation
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: string
-                example:
-                  "2024/11/01": "〇"
-                  "2024/11/02": "X"
-                  "2024/11/03": "△"
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationSlot'
         '400':
           description: Invalid parameter supplied
         '404':
           description: Not found
-      security:
-        - api_key: []
+      # security:
+      #   - api_key: []
   /reservations:
+    get:
+      tags:
+        - reservations
+      summary: 予約一覧
+      description: 店舗の予約一覧
+      #operationId:
+      parameters:
+        - name: areaId
+          in: query
+          description: エリアID
+          required: true
+          schema:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ca' 
+        '400':
+          description: Invalid parameters areaId
+        '404':
+          description: Not found
     post:
       tags:
         - reservations
@@ -145,7 +370,7 @@ paths:
               required:
                 - name
                 - email
-                - storeId
+                - shopId
                 - reservationTime
       responses:
         '200':
@@ -154,63 +379,46 @@ paths:
           description: Invalid input
         '404':
           description: Validation exception
-    put:
-      tags:
-        - reservations
-      summary: 予約更新
-      description: 予約更新
-      #operationId:
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "予約情報"
-        required: true
-        schema:
-            $ref: "#/components/schemas/Reservation"
-      responses:
-        '200':
-          description: successful operation
-        '400':
-          description: Invalid input
-        '404':
-          description: Validation exception
-    delete:
-      tags:
-        - reservations
-      summary: 予約キャンセル
-      description: 予約キャンセル
-      #operationId:
-      parameters:
-        - name: reservationId
-          in: path
-          description: キャンセルする予約のID
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-        '400':
-          description: Invalid input
-        '404':
-          description: Validation exception
-      
-
+## 
 components:
   schemas:
-    Store:
+    ca:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 111111
+        name:
+          type: integer
+          example: 太郎 シーエー
+    caAssign:
+      type: object
+      description: CAアサイン情報
+      properties:
+        id:
+          type: integer
+          format: int64
+          # example
+        shopId:
+          type: integer
+          format: int64
+          example: 26016
+        caId:
+          type: integer
+          format: int64
+          example: 26016
+        time:
+          type: string
+          format: date-time
+    shop:
         type: object
         properties:
           id:
             type: integer
             format: int64
             example: 26016
-          storeName:
+          shopName:
             type: string
             example: グランツリー武蔵小杉店
           prefecture:
@@ -241,15 +449,35 @@ components:
               example: 保険　太郎
             email:
               type: string
+              format: email
               example: taro@email.com
-            storeId:
+            shopId:
               type: integer
               format: int64
               example: 26016
-            reservationTime:
+            desired_date:
+              type: string
+              format: date
+            desired_time:
               type: string
               format: date-time
-              example: "2024-11-20T18:00:00"
+    ReservationSlot:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        note:
+          type: string
+        status:
+          type: string
+          enum: [AVAILABLE, LIMITED, UNAVAILABLEPENDING, CONTACT_REQUIRED, BLOCKED]	
   securitySchemes:
     api_key:
       type: apiKey
