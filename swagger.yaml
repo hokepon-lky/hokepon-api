@@ -305,7 +305,10 @@ paths:
       tags:
         - reservations
       summary: 予約可能情報
-      description: "店舗IDを指定して、予約可能情報を取得する"
+      description: |
+        店舗IDを指定して、予約可能情報を取得する<br>
+        ・取得できる範囲は、当日から二週間分<br>
+        ・fromの指定がない場合、当日をfromとする
       parameters:
         - name: shopId
           in: path
@@ -314,6 +317,20 @@ paths:
           schema:
               type: integer
               format: int64
+        - name: from
+          in: query
+          description: 取得範囲の開始日付
+          required: false
+          schema:
+              type: string
+              format: date
+        - name: to
+          in: query
+          description: 取得範囲の終了日付
+          required: false
+          schema:
+              type: string
+              format: date
       responses:
         '200':
           description: successful operation
