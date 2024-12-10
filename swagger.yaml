@@ -500,17 +500,28 @@ components:
     AssignReservationInfo:
       type: object
       properties:
-        customerName:
+        name1:
           type: string
-          example: 保険　太郎
+          example: 保険
+        name2:
+          type: string
+          example: 太郎
+        name1_kana:
+          type: string
+          example: ホケン
+        name2_kana:
+          type: string
+          example: タロウ
         shopId:
           type: integer
           format: int64
-          example: 26016
-        reservationTime:
+          example: 569
+        desired_date:
           type: string
-          format: date-time
-          example: 2024-12-01T09:00:00Z
+          example: 20241201
+        desired_time:
+          type: string
+          example: 1030
         promotionID:
           type: string
           example: ss002 
