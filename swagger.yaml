@@ -8,7 +8,10 @@ info:
   # contact:
   #   email: hogehoge@mail.com
 servers:
+  - url: https://internal-stg.hokepon.com/api
+    description: STG
   - url: https://internal.hokepon.com/api
+    description: PROD
 tags:
   - name: shops
     description: 店舗
