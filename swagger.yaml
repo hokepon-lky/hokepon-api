@@ -340,9 +340,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ReservationSlot'
+                $ref: '#/components/schemas/Availabilitiy'
         '400':
           description: Invalid parameter supplied
         '404':
@@ -483,18 +481,43 @@ components:
             desired_time:
               type: string
               format: date-time
+    Availabilitiy:
+      type: object
+      properties:
+        shopId:
+          type: integer
+          format: int64
+          example: 569
+        shopName:
+          type: string
+          example: グランツリー武蔵小杉店
+        date: 
+          type: string
+          format: date
+          example: "2024-12-01"
+        openTime:
+          type: string
+          format: date-time
+          example: "09:00:00"
+        closeTime:
+          type: string
+          format: date-time
+          example: "18:00:00"
+        reservationSlots:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReservationSlot'
     ReservationSlot:
       type: object
       properties:
-        date:
-          type: string
-          format: date
         startTime:
           type: string
           format: date-time
+          example: "10:00"
         endTime:
           type: string
           format: date-time
+          example: "10:30"
         note:
           type: string
         status:
