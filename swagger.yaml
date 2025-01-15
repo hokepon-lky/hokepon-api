@@ -140,23 +140,20 @@ paths:
         description: 予約情報一部
         required: true
         content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AssignReservationInfo'
           application/json:
             schema:
-              $ref: '#/components/schemas/AssignReservationInfo'
+              $ref: '#/components/schemas/CaAssignRequest'
       responses:
         '200':
           description: successful operation
           content:
-            text/plain:
+            application/json:
               schema:
-                type: integer
-                format: int64
-                example: 27
+                $ref: '#/components/schemas/CaAssignResponse'
         '400':
           description: Invalid parameters supplied
+        '404':
+          description: Not Found
         '422':
           description: Failed to assign CA
     get:
@@ -523,34 +520,32 @@ components:
         status:
           type: string
           enum: [AVAILABLE, LIMITED, UNAVAILABLEPENDING, CONTACT_REQUIRED, BLOCKED]
-    AssignReservationInfo:
+    CaAssignRequest:
       type: object
       properties:
-        name1:
-          type: string
-          example: 保険
-        name2:
-          type: string
-          example: 太郎
-        name1_kana:
-          type: string
-          example: ホケン
-        name2_kana:
-          type: string
-          example: タロウ
         shopId:
           type: integer
           format: int64
           example: 569
-        desired_date:
+        desiredDate:
           type: string
-          example: 20241201
-        desired_time:
+          example: "2024-12-01"
+        desiredTime:
           type: string
-          example: 1030
-        promotionID:
+          example: "10:30"
+        promotionId:
           type: string
-          example: ss002 
+          example: "ss002"
+        slctPlace:
+          type: string
+          example: "1"
+    CaAssignResponse:
+      type: object
+      properties:
+        hokanId:
+          type: string
+        garoonCounterId:
+          type: string
   securitySchemes:
     api_key:
       type: apiKey
