@@ -1,4 +1,4 @@
-openapi: "3.0.3"
+openapi: "3.0.4"
 info:
   title: "Hokepon API"
   description: |-
@@ -375,20 +375,15 @@ paths:
     post:
       tags:
         - reservations
-      summary: 予約登録
-      description: 予約登録
+      summary: 相談予約登録
+      description: 相談予約登録
       #operationId:
       requestBody:
-        description: 予約情報
+        description: 相談予約情報
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Reservation'
-              required:
-                - name
-                - email
-                - shopId
-                - reservationTime
       responses:
         '200':
           description: successful operation
@@ -459,25 +454,119 @@ components:
         name:
           type: string
     Reservation:
+          required:
+            - consultationCategory
+            - shopId
+            - shopName
+            - desiredDate
+            - desiredTime
+            - lastName
+            - firstName
+            - lastNameKana
+            - firstNameKana
+            - gender
+            - dateOfBirthYear
+            - dateOfBirthMonth
+            - dateOfBirthDay
+            - phoneNumber
+            - email
+            - experience
+            - referral
           type: object
           properties:
-            name:
+            consultationCategory:
               type: string
-              example: 保険　太郎
-            email:
-              type: string
-              format: email
-              example: taro@email.com
+              example: lifeInsurance
+              enum:
+                - lifeInsurance
+                - general-insurance
+                - mortgage
             shopId:
               type: integer
-              format: int64
-              example: 26016
-            desired_date:
+              example: 586
+              minimum: 1
+              maximum: 5
+            shopName:
+              type: string
+              example: グランツリー武蔵小杉店
+            desiredDate:
               type: string
               format: date
-            desired_time:
+              example: '20250430'
+              description: Date in yyyyMMdd format (e.g., 20250430)
+            desiredDate2:
+              type: string
+              format: date
+              example: '20250430'
+              description: Date in yyyyMMdd format (e.g., 20250430)
+            desiredTime:
               type: string
               format: date-time
+              example: '1430'
+              description: Time in hhmm format (24-hour clock, e.g., 1430 for 2:30 PM)
+            desiredTime2:
+              type: string
+              format: date-time
+              example: '1430'
+              description: Time in hhmm format (24-hour clock, e.g., 1430 for 2:30 PM)
+            lastName:
+              type: string
+              example: 保険
+            firstName:
+              type: string
+              example: 太郎
+            lastNameKana:
+              type: string
+              example: ホケン
+            firstNameKana:
+              type: string
+              example: タロウ
+            gender:
+              type: string
+              enum:
+                - male
+                - female
+            dateOfBirthYear:
+              type: string
+              format: date
+              example: '1989'
+              description: 今後、dateOfBirth 一つの項目にする
+            dateOfBirthMonth:
+              type: string
+              format: date
+              example: '01'
+              description: 今後、dateOfBirth 一つの項目にする
+            dateOfBirthDay:
+              type: string
+              format: date
+              example: '07'
+              description: 今後、dateOfBirth 一つの項目にする
+            phoneNumber:
+              type: string
+              example: '07012692668'
+              description: 数字, -, + 以外は使えない
+            email:
+              type: string
+              example: "hoken_taro@hompo.com"
+            experience:
+              type: string
+              enum:
+                - usedBefore
+                - firstTime
+              description: 保険見直し本舗のご利用について - firstTime(初めて), usedBefore(使ったことがある)
+            referral:
+              type: string
+              enum:
+                - yes
+                - no
+              description: ご紹介でのご利用となりますか - yes(ご紹介あり), no(ご紹介なし)
+            additionalRequests:
+              type: string
+              example: 生命保険を見直したい
+              description: ご要望
+            promotionCode:
+              type: string
+              example: sb996
     Availabilitiy:
       type: object
       properties:
